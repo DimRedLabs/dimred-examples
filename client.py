@@ -274,7 +274,7 @@ class DimRedAPIClient:
         if metric_description:
             data["metric_description"] = metric_description
 
-        response = self._make_request("POST", "/api/v2/metrics/pkl-metrics/code", data=data)
+        response = self._make_request("POST", "/api/v2/metrics", data=data)
         metric_id = response.get("metric_id")
 
         if not metric_id:
