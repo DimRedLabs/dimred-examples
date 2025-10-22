@@ -1,0 +1,92 @@
+[
+  {
+    "input": {
+      "article_snippet": "In a statement on Monday, federal agents announced the arrest of Carlos Mendes, 47, accused of funneling over $5 million in drug proceeds through a chain of shell corporations across three states. Court documents reveal that Mendes disguised cash deposits as legitimate sales revenue before transferring funds overseas. The investigation began after suspicious activity reports filed by his bank's compliance department."
+    },
+    "expected": {
+      "is_perpetrator": true,
+      "reasoning": "<provide reasoning here>"
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "City Ledger reports that Julia Reyes described her multi-million-dollar transfers as routine inter-company loans to support affiliate expansion. Yet the bank's audit appendix, printed alongside, shows $3.8 million routed through three phantom entities before being wired overseas."
+    },
+    "expected": {
+      "is_perpetrator": true,
+      "reasoning": "<provide reasoning here>"
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Several observers in financial circles have begun asking why philanthropist Steven Hartman moves large sums offshore each quarter, despite no public record of foreign investments or subsidiaries to justify these transactions. Industry analysts note that such patterns are unusual for someone who claims a purely domestic business footprint."
+    },
+    "expected": {
+      "is_perpetrator": false,
+      "reasoning": "<provide reasoning here>"
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Detective Laura Kim said she first noticed the suspicious activity while reviewing branch reports and immediately flagged the transactions for further scrutiny. Branch manager Carlos Rivera confirmed he had no prior reason to suspect wrongdoing and praised the FBI's swift response."
+    },
+    "expected": {
+      "is_perpetrator": false,
+      "reasoning": "<provide reasoning here>"
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Authorities in New York charged Nadia Al-Salim, 34, on Tuesday with funneling donations to a designated extremist group overseas. Prosecutors allege Al-Salim used a personal checking account to disguise contributions as charitable gifts before wiring money through multiple intermediaries."
+    },
+    "expected": {
+      "is_perpetrator": true,
+      "reasoning": "<provide reasoning here>"
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "The Morning Bulletin quotes Michael Astor insisting his transfers were purely humanitarian aid, yet Treasury exhibits reproduced in the article trace $250,000 through unregistered charities to a proscribed group."
+    },
+    "expected": {
+      "is_perpetrator": true,
+      "reasoning": "<provide reasoning here>"
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Commentators have expressed unease over civic-minded entrepreneur Lila Nader's aggressive overseas fundraising, hinting that the opaque routing of her donations could attract federal interest. No regulatory action has been announced, but critics maintain the benefactor's paperwork raises more questions than answers."
+    },
+    "expected": {
+      "is_perpetrator": false,
+      "reasoning": "<provide reasoning here>"
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "U.S. Attorney James Billings issued a statement commending community leaders for reporting suspicious donations. Local volunteer coordinator Sarah O'Neill said her charity has never faced inquiries of this kind and praised the transparency of law enforcement."
+    },
+    "expected": {
+      "is_perpetrator": false,
+      "reasoning": "<provide reasoning here>"
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Former vice-president Robert Chen was indicted yesterday for secretly buying stock in HealthTech Inc. ahead of a merger announcement that boosted the share price by 40 percent. Prosecutors say Chen traded on confidential boardroom information."
+    },
+    "expected": {
+      "is_perpetrator": true,
+      "reasoning": "<provide reasoning here>"
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Market Weekly reports that Emma Park dismissed her purchase of 50,000 shares as a savvy bet on public rumor, but SEC timestamps printed in the same story place her order mere minutes before the merger went public."
+    },
+    "expected": {
+      "is_perpetrator": true,
+      "reasoning": "<provide reasoning here>"
+    }
+  }
+]
