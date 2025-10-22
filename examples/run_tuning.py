@@ -23,7 +23,11 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
+from dotenv import load_dotenv
 from client import DimRedAPIClient, DimRedAPIError
+
+# Load environment variables from .env file
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 # Configure logging
 logging.basicConfig(
@@ -41,8 +45,8 @@ def main():
     )
     parser.add_argument(
         "--api-key",
-        required=True,
-        help="DimRed API key"
+        default=os.getenv("DIMRED_API_KEY"),
+        help="DimRed API key (or set DIMRED_API_KEY env var)"
     )
     parser.add_argument(
         "--base-url",
@@ -59,6 +63,11 @@ def main():
 
     if args.verbose:
         logger.setLevel(logging.DEBUG)
+
+    # Validate API key
+    if not args.api_key:
+        logger.error("Error: No API key provided. Either pass --api-key or set DIMRED_API_KEY environment variable.")
+        return 1
 
     try:
         # Initialize client
