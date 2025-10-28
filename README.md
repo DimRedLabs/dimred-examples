@@ -84,6 +84,21 @@ This notebook demonstrates:
 - Running prompt tuning with vision-capable models (GPT-4o, Claude 3)
 - Retrieving optimized prompts for image classification tasks
 
+#### Template Variable Tuning Example
+
+Launch the template tuning notebook to see how to work with template variables:
+
+```bash
+cd examples
+jupyter notebook run_template_tuning.ipynb
+```
+
+This notebook demonstrates:
+- Using template variable payloads with `{{variable_name}}` syntax
+- Dynamic prompt substitution at inference time
+- Testing the same prompt template with different variable values
+- Optimizing prompts that need personalization or dynamic content
+
 ## What the Examples Do
 
 The example workflow demonstrates:
@@ -101,21 +116,24 @@ The example workflow demonstrates:
 
 - **Text-based tuning** (`run_tuning.py` / `run_tuning.ipynb`): Financial crime detection - classifying whether individuals mentioned in news articles are perpetrators of financial crimes
 - **Image-based tuning** (`run_image_tuning.ipynb`): Cat detection - identifying whether images contain cats, demonstrating how to work with vision-capable models and image payloads
+- **Template variable tuning** (`run_template_tuning.ipynb`): Perpetrator identification with dynamic names - using template variables to substitute specific person names into prompts, enabling personalized analysis
 
 ## Project Structure
 
 ```
 dimred-examples/
-├── client.py                      # DimRed API client library
+├── client.py                              # DimRed API client library
 ├── examples/
-│   ├── run_tuning.py              # Command-line example script (text-based)
-│   ├── run_tuning.ipynb           # Jupyter notebook example (text-based)
-│   └── run_image_tuning.ipynb     # Jupyter notebook example (image-based)
+│   ├── run_tuning.py                      # Command-line example script (text-based)
+│   ├── run_tuning.ipynb                   # Jupyter notebook example (text-based)
+│   ├── run_image_tuning.ipynb             # Jupyter notebook example (image-based)
+│   └── run_template_tuning.ipynb          # Jupyter notebook example (template variables)
 ├── data/
-│   ├── example.json               # Sample dataset (text-based)
-│   └── image_example.json         # Sample dataset with base64-encoded images
-├── requirements.txt               # Python dependencies
-└── README.md                      # This file
+│   ├── example.json                       # Sample dataset (text-based)
+│   ├── image_example.json                 # Sample dataset with base64-encoded images
+│   └── template_optimization_example.json # Sample dataset with template variables
+├── requirements.txt                       # Python dependencies
+└── README.md                              # This file
 ```
 
 ## API Client Usage
