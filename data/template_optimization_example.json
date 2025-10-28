@@ -1,0 +1,218 @@
+[
+  {
+    "input": {
+      "article_snippet": "Federal agents announced the arrest of Carlos Mendes, 47, accused of funneling over $5 million in drug proceeds through a chain of shell corporations across three states. His business partner Maria Santos, 43, was also questioned but released without charges after cooperating with investigators. Court documents reveal that Mendes disguised cash deposits as legitimate sales revenue before transferring funds overseas. The investigation began after suspicious activity reports filed by his bank's compliance department."
+    },
+    "payloads": [
+      {
+        "payload_type": "template_var",
+        "payload": {
+          "key": "customer_name",
+          "value": "Carlos Mendes"
+        }
+      }
+    ],
+    "expected": {
+      "is_perpetrator": true,
+      "reasoning": "Carlos Mendes was formally arrested and charged with money laundering through shell corporations, while his partner Maria Santos was released without charges. Clear documentary evidence of criminal activity."
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Several observers in financial circles have begun asking why philanthropist Steven Hartman moves large sums offshore each quarter, despite no public record of foreign investments or subsidiaries to justify these transactions. His financial advisor Jennifer Walsh has defended the transactions as legitimate estate planning, though industry analysts note that such patterns are unusual for someone who claims a purely domestic business footprint. Walsh declined to provide additional details citing client confidentiality."
+    },
+    "payloads": [
+      {
+        "payload_type": "template_var",
+        "payload": {
+          "key": "customer_name",
+          "value": "Steven Hartman"
+        }
+      }
+    ],
+    "expected": {
+      "is_perpetrator": false,
+      "reasoning": "Steven Hartman shows only circumstantial evidence of unusual patterns, has professional financial advice from Jennifer Walsh defending transactions as legitimate estate planning, and no concrete proof of violations."
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Federal prosecutors charged Maria Rodriguez, 34, with orchestrating a sophisticated identity theft scheme that compromised over 10,000 personal records. Her alleged accomplice David Kim, 29, was arrested separately but claims he was merely a contracted IT consultant unaware of the illegal activities. Evidence includes intercepted communications, fraudulent credit applications using stolen identities, and wire transfers totaling $2.3 million to offshore accounts. Digital forensics recovered deleted files from Rodriguez's laptop containing victim Social Security numbers and banking information."
+    },
+    "payloads": [
+      {
+        "payload_type": "template_var",
+        "payload": {
+          "key": "customer_name",
+          "value": "Maria Rodriguez"
+        }
+      }
+    ],
+    "expected": {
+      "is_perpetrator": true,
+      "reasoning": "Maria Rodriguez has strong evidence against her including digital forensics from her personal laptop, intercepted communications, and direct financial benefits, while David Kim claims to be an unwitting contractor."
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Questions have been raised about Dr. James Wilson's research methodologies after a former lab assistant, Rebecca Chen, came forward with concerns about data handling practices. The university has launched an internal review, though Wilson maintains that all procedures followed institutional guidelines and that Chen was dismissed for performance issues. Department head Dr. Sarah Martinez supports Wilson, stating his research has always met ethical standards. No formal charges have been filed, and Wilson continues in his position while the investigation proceeds."
+    },
+    "payloads": [
+      {
+        "payload_type": "template_var",
+        "payload": {
+          "key": "customer_name",
+          "value": "Dr. James Wilson"
+        }
+      }
+    ],
+    "expected": {
+      "is_perpetrator": false,
+      "reasoning": "Dr. James Wilson has only allegations from a dismissed employee Rebecca Chen, support from department head Dr. Sarah Martinez, no formal charges, and continues in position suggesting insufficient evidence."
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Investment advisor Thomas Chen was indicted on charges of misleading clients about the risks of speculative investments while secretly receiving commissions from the investment companies. His supervisor at Pinnacle Investments, Michael Torres, claims he was unaware of Chen's commission arrangements and has cooperated fully with investigators. Prosecutors present email records showing Chen acknowledged the high-risk nature of the investments in private communications while publicly promoting them as 'safe retirement options.' Multiple clients lost their retirement savings following Chen's recommendations, while Torres maintains his oversight was limited to general compliance reviews."
+    },
+    "payloads": [
+      {
+        "payload_type": "template_var",
+        "payload": {
+          "key": "customer_name",
+          "value": "Thomas Chen"
+        }
+      }
+    ],
+    "expected": {
+      "is_perpetrator": true,
+      "reasoning": "Thomas Chen was formally indicted with documented evidence of deceptive practices through emails, secret commissions creating conflict of interest, and measurable victim harm, while supervisor Michael Torres appears to have had limited oversight."
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Business owner Rachel Martinez is under scrutiny by federal tax authorities following an audit that revealed discrepancies in reported income versus lifestyle expenditures. Her accountant, CPA firm partner Robert Kim, states that all tax filings were prepared by his certified professionals and followed applicable law. While Martinez's attorney defends her compliance, investigators are examining cash transactions and offshore account activity. Kim has provided all requested documentation and maintains his firm followed standard practices. The investigation remains active with no conclusions reached regarding either Martinez or Kim's professional conduct."
+    },
+    "payloads": [
+      {
+        "payload_type": "template_var",
+        "payload": {
+          "key": "customer_name",
+          "value": "Rachel Martinez"
+        }
+      }
+    ],
+    "expected": {
+      "is_perpetrator": false,
+      "reasoning": "Rachel Martinez's investigation is ongoing without conclusions, she used certified professionals (Robert Kim's CPA firm) for tax preparation, her attorney maintains compliance, and only discrepancies have been identified, not proven violations."
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Federal agents announced the arrest of Carlos Mendes, 47, accused of funneling over $5 million in drug proceeds through a chain of shell corporations across three states. His business partner Maria Santos, 43, was also questioned but released without charges after cooperating with investigators. Court documents reveal that Mendes disguised cash deposits as legitimate sales revenue before transferring funds overseas. The investigation began after suspicious activity reports filed by his bank's compliance department."
+    },
+    "payloads": [
+      {
+        "payload_type": "template_var",
+        "payload": {
+          "key": "customer_name",
+          "value": "Carlos Mendes"
+        }
+      }
+    ],
+    "expected": {
+      "is_perpetrator": true,
+      "reasoning": "Carlos Mendes was formally arrested and charged with money laundering through shell corporations, while his partner Maria Santos was released without charges. Clear documentary evidence of criminal activity."
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Several observers in financial circles have begun asking why philanthropist Steven Hartman moves large sums offshore each quarter, despite no public record of foreign investments or subsidiaries to justify these transactions. His financial advisor Jennifer Walsh has defended the transactions as legitimate estate planning, though industry analysts note that such patterns are unusual for someone who claims a purely domestic business footprint. Walsh declined to provide additional details citing client confidentiality."
+    },
+    "payloads": [
+      {
+        "payload_type": "template_var",
+        "payload": {
+          "key": "customer_name",
+          "value": "Steven Hartman"
+        }
+      }
+    ],
+    "expected": {
+      "is_perpetrator": false,
+      "reasoning": "Steven Hartman shows only circumstantial evidence of unusual patterns, has professional financial advice from Jennifer Walsh defending transactions as legitimate estate planning, and no concrete proof of violations."
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Federal prosecutors charged Maria Rodriguez, 34, with orchestrating a sophisticated identity theft scheme that compromised over 10,000 personal records. Her alleged accomplice David Kim, 29, was arrested separately but claims he was merely a contracted IT consultant unaware of the illegal activities. Evidence includes intercepted communications, fraudulent credit applications using stolen identities, and wire transfers totaling $2.3 million to offshore accounts. Digital forensics recovered deleted files from Rodriguez's laptop containing victim Social Security numbers and banking information."
+    },
+    "payloads": [
+      {
+        "payload_type": "template_var",
+        "payload": {
+          "key": "customer_name",
+          "value": "Maria Rodriguez"
+        }
+      }
+    ],
+    "expected": {
+      "is_perpetrator": true,
+      "reasoning": "Maria Rodriguez has strong evidence against her including digital forensics from her personal laptop, intercepted communications, and direct financial benefits, while David Kim claims to be an unwitting contractor."
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Questions have been raised about Dr. James Wilson's research methodologies after a former lab assistant, Rebecca Chen, came forward with concerns about data handling practices. The university has launched an internal review, though Wilson maintains that all procedures followed institutional guidelines and that Chen was dismissed for performance issues. Department head Dr. Sarah Martinez supports Wilson, stating his research has always met ethical standards. No formal charges have been filed, and Wilson continues in his position while the investigation proceeds."
+    },
+    "payloads": [
+      {
+        "payload_type": "template_var",
+        "payload": {
+          "key": "customer_name",
+          "value": "Dr. James Wilson"
+        }
+      }
+    ],
+    "expected": {
+      "is_perpetrator": false,
+      "reasoning": "Dr. James Wilson has only allegations from a dismissed employee Rebecca Chen, support from department head Dr. Sarah Martinez, no formal charges, and continues in position suggesting insufficient evidence."
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Investment advisor Thomas Chen was indicted on charges of misleading clients about the risks of speculative investments while secretly receiving commissions from the investment companies. His supervisor at Pinnacle Investments, Michael Torres, claims he was unaware of Chen's commission arrangements and has cooperated fully with investigators. Prosecutors present email records showing Chen acknowledged the high-risk nature of the investments in private communications while publicly promoting them as 'safe retirement options.' Multiple clients lost their retirement savings following Chen's recommendations, while Torres maintains his oversight was limited to general compliance reviews."
+    },
+    "payloads": [
+      {
+        "payload_type": "template_var",
+        "payload": {
+          "key": "customer_name",
+          "value": "Thomas Chen"
+        }
+      }
+    ],
+    "expected": {
+      "is_perpetrator": true,
+      "reasoning": "Thomas Chen was formally indicted with documented evidence of deceptive practices through emails, secret commissions creating conflict of interest, and measurable victim harm, while supervisor Michael Torres appears to have had limited oversight."
+    }
+  },
+  {
+    "input": {
+      "article_snippet": "Business owner Rachel Martinez is under scrutiny by federal tax authorities following an audit that revealed discrepancies in reported income versus lifestyle expenditures. Her accountant, CPA firm partner Robert Kim, states that all tax filings were prepared by his certified professionals and followed applicable law. While Martinez's attorney defends her compliance, investigators are examining cash transactions and offshore account activity. Kim has provided all requested documentation and maintains his firm followed standard practices. The investigation remains active with no conclusions reached regarding either Martinez or Kim's professional conduct."
+    },
+    "payloads": [
+      {
+        "payload_type": "template_var",
+        "payload": {
+          "key": "customer_name",
+          "value": "Rachel Martinez"
+        }
+      }
+    ],
+    "expected": {
+      "is_perpetrator": false,
+      "reasoning": "Rachel Martinez's investigation is ongoing without conclusions, she used certified professionals (Robert Kim's CPA firm) for tax preparation, her attorney maintains compliance, and only discrepancies have been identified, not proven violations."
+    }
+  }
+]
