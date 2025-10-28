@@ -40,7 +40,9 @@ This repository contains:
 
 ### Running the Examples
 
-#### Python Script
+#### Text-Based Tuning Examples
+
+**Python Script:**
 
 Run the complete tuning workflow from the command line:
 
@@ -59,15 +61,28 @@ Additional options:
 python examples/run_tuning.py --help
 ```
 
-#### Jupyter Notebook
+**Jupyter Notebook:**
 
-Launch the interactive notebook:
+Launch the interactive notebook for text-based tuning:
 
 ```bash
 jupyter notebook examples/run_tuning.ipynb
 ```
 
-The notebook demonstrates the same workflow with step-by-step explanations.
+#### Image-Based Tuning Example
+
+Launch the image tuning notebook to see how to work with image payloads:
+
+```bash
+cd examples
+jupyter notebook run_image_tuning.ipynb
+```
+
+This notebook demonstrates:
+- Loading datasets with base64-encoded images
+- Creating datapoints with image payloads
+- Running prompt tuning with vision-capable models (GPT-4o, Claude 3)
+- Retrieving optimized prompts for image classification tasks
 
 ## What the Examples Do
 
@@ -82,20 +97,25 @@ The example workflow demonstrates:
 7. **Wait for completion** - Poll until tuning finishes
 8. **Get results** - Retrieve the best performing prompt
 
-The included example focuses on financial crime detection, classifying whether individuals mentioned in news articles are perpetrators of financial crimes.
+### Example Use Cases
+
+- **Text-based tuning** (`run_tuning.py` / `run_tuning.ipynb`): Financial crime detection - classifying whether individuals mentioned in news articles are perpetrators of financial crimes
+- **Image-based tuning** (`run_image_tuning.ipynb`): Cat detection - identifying whether images contain cats, demonstrating how to work with vision-capable models and image payloads
 
 ## Project Structure
 
 ```
 dimred-examples/
-├── client.py              # DimRed API client library
+├── client.py                      # DimRed API client library
 ├── examples/
-│   ├── run_tuning.py      # Command-line example script
-│   └── run_tuning.ipynb   # Jupyter notebook example
+│   ├── run_tuning.py              # Command-line example script (text-based)
+│   ├── run_tuning.ipynb           # Jupyter notebook example (text-based)
+│   └── run_image_tuning.ipynb     # Jupyter notebook example (image-based)
 ├── data/
-│   └── example.json       # Sample dataset
-├── requirements.txt       # Python dependencies
-└── README.md             # This file
+│   ├── example.json               # Sample dataset (text-based)
+│   └── image_example.json         # Sample dataset with base64-encoded images
+├── requirements.txt               # Python dependencies
+└── README.md                      # This file
 ```
 
 ## API Client Usage
