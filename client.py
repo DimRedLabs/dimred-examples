@@ -351,6 +351,112 @@ class DimRedAPIClient:
             "status": response.get("status", "pending")
         }
 
+    def run_workflow(
+        self,
+        project_id: str,
+        dataset_id: str,
+        prompt_id: str,
+        model_name: str = "gpt-4o-mini",
+        provider: str = "openai",
+        mode: str = "inference",
+        metric_id: Optional[str] = None,
+        num_iterations: int = 1,
+        include_project_metrics: bool = False
+    ) -> Dict[str, Any]:
+        """
+        Run a workflow with the new v1 API endpoint.
+
+        Args:
+            project_id: ID of the project
+            dataset_id: ID of the dataset
+            prompt_id: ID of the prompt
+            model_name: LLM model name
+            provider: LLM provider (openai, anthropic, openrouter)
+            mode: Workflow mode - "inference", "evaluate", or "tune"
+            metric_id: ID of the metric (required for evaluate/tune modes)
+            num_iterations: Number of iterations (only for tune mode)
+            include_project_metrics: Whether to include project metrics (tune mode)
+
+        Returns:
+            Dictionary with workflow response
+        """
+        logger.info(f"Running workflow in {mode} mode for project {project_id}")
+        logger.info(f"  Dataset: {dataset_id}")
+        logger.info(f"  Prompt: {prompt_id}")
+        if metric_id:
+            logger.info(f"  Metric: {metric_id}")
+        logger.info(f"  Model: {model_name} ({provider})")
+
+        data = {
+            "project_id": project_id,
+            "dataset_id": dataset_id,
+            "prompt_id": prompt_id,
+            "model_name": model_name,
+            "provider": provider,
+            "mode": mode
+        }
+
+        # Add mode-specific parameters
+        if mode == "evaluate":
+            if not metric_id:
+                raise DimRedAPIError("metric_id is required for evaluate mode")
+            data["metric_id"] = metric_id
+        elif mode == "tune":
+            if not metric_id:
+                raise DimRedAPIError("metric_id is required for tune mode")
+            data["metric_id"] = metric_id
+            data["num_iterations"] = num_iterations
+            data["includeProjectMetrics"] = include_project_metrics
+            logger.info(f"  Iterations: {num_iterations}")
+        # For inference mode, no metric_id is needed
+
+        # Use Authorization header for v1 endpoint
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+
+        # Make the request to the v1 endpoint
+        url = f"{self.base_url}/api/v1/workflows"
+        logger.debug(f"POST {url}")
+        if data:
+            logger.debug(f"Request body: {json.dumps(data, indent=2)}")
+
+        try:
+            response = requests.post(
+                url=url,
+                headers=headers,
+                json=data,
+                timeout=30
+            )
+
+            logger.debug(f"Response status: {response.status_code}")
+
+            # Try to parse JSON response
+            try:
+                response_data = response.json()
+            except json.JSONDecodeError:
+                response_data = {"text": response.text}
+
+            # Check for errors
+            if response.status_code >= 400:
+                error_detail = response_data.get("detail", response_data.get("message", "Unknown error"))
+                raise DimRedAPIError(
+                    f"API request failed with status {response.status_code}: {error_detail}"
+                )
+
+            logger.info(f"✓ Workflow started in {mode} mode")
+            if mode == "tune":
+                session_id = response_data.get("tuning_session_id")
+                if session_id:
+                    logger.info(f"  Session ID: {session_id}")
+
+            return response_data
+
+        except requests.RequestException as e:
+            logger.error(f"Request failed: {str(e)}")
+            raise DimRedAPIError(f"Request failed: {str(e)}")
+
     def get_tuning_session(self, session_id: str) -> Dict[str, Any]:
         """
         Get the current status of a tuning session.
