@@ -50,8 +50,8 @@ def main():
     )
     parser.add_argument(
         "--base-url",
-        default="https://api.dimred.com",
-        help="API base URL (default: https://api.dimred.com)"
+        default="https://www.dimred.com",
+        help="API base URL (default: https://www.dimred.com)"
     )
     parser.add_argument(
         "--verbose",
@@ -109,27 +109,22 @@ def main():
 
         # 4. Create prompt for financial crime detection
         logger.info("\n=== Step 4: Create Prompt ===")
-        messages = [
-            {
-                "prompt_text": (
-                    "You are an expert financial crime analyst. Your task is to analyze news article "
-                    "snippets and determine whether the person mentioned is a perpetrator of financial crime.\n\n"
-                    "A person is a PERPETRATOR if:\n"
-                    "- They are explicitly charged, indicted, arrested, or accused of financial crimes\n"
-                    "- There is clear evidence of illegal activity (e.g., court documents, bank records)\n"
-                    "- They are directly involved in illegal financial transactions\n\n"
-                    "A person is NOT a perpetrator if:\n"
-                    "- They are law enforcement, prosecutors, or investigators\n"
-                    "- They are witnesses, victims, or observers\n"
-                    "- There is only speculation or suspicion without charges\n"
-                    "- They are community leaders or officials responding to crimes\n\n"
-                    "Respond with JSON containing:\n"
-                    "- is_perpetrator: true or false\n"
-                    "- reasoning: brief explanation of your decision"
-                ),
-                "prompt_message_type": "system"
-            }
-        ]
+        prompt_text = (
+            "You are an expert financial crime analyst. Your task is to analyze news article "
+            "snippets and determine whether the person mentioned is a perpetrator of financial crime.\n\n"
+            "A person is a PERPETRATOR if:\n"
+            "- They are explicitly charged, indicted, arrested, or accused of financial crimes\n"
+            "- There is clear evidence of illegal activity (e.g., court documents, bank records)\n"
+            "- They are directly involved in illegal financial transactions\n\n"
+            "A person is NOT a perpetrator if:\n"
+            "- They are law enforcement, prosecutors, or investigators\n"
+            "- They are witnesses, victims, or observers\n"
+            "- There is only speculation or suspicion without charges\n"
+            "- They are community leaders or officials responding to crimes\n\n"
+            "Respond with JSON containing:\n"
+            "- is_perpetrator: true or false\n"
+            "- reasoning: brief explanation of your decision"
+        )
 
         # Create output schema for structured JSON response
         output_schema = {
@@ -149,7 +144,8 @@ def main():
 
         prompt_id = client.create_prompt(
             project_id=project_id,
-            messages=messages,
+            prompt_text=prompt_text,
+            prompt_message_type="system",
             name="Financial Crime Perpetrator Detection",
             output_schema=output_schema
         )
@@ -197,59 +193,79 @@ def metric_func(output, expected):
 
         # 6. Run tuning
         logger.info("\n=== Step 6: Run Tuning ===")
-        tuning_result = client.run_tuning(
+        workflow_response = client.run_workflow(
             project_id=project_id,
             dataset_id=dataset_id,
             prompt_id=prompt_id,
             metric_id=metric_id,
-            num_iterations=3,
-            model_name="gpt-4.1-mini",
-            provider="openai"
+            model_name="gpt-4o-mini",
+            provider="openai",
+            mode="tune",
+            num_iterations=3
         )
 
-        session_id = tuning_result["tuning_session_id"]
+        workflow_id = workflow_response.get("id") or workflow_response.get("tuning_session_id")
+        logger.info(f"Tuning session started: {workflow_id}")
 
         # 7. Wait for completion
         logger.info("\n=== Step 7: Wait for Completion ===")
-        final_result = client.wait_for_tuning_completion(
-            session_id=session_id,
-            poll_interval=15,
+        final_result = client.wait_for_workflow_completion(
+            workflow_id=workflow_id,
+            poll_interval=10,
             timeout=3600
         )
 
-        # Fetch the best prompt
-        prompt_id = final_result.get('prompt_id')
-        prompt_text = None
-        if prompt_id:
-            logger.info("\n=== Fetching Best Prompt ===")
-            try:
-                prompt_response = client.get_prompt(prompt_id)
-                # Extract prompt text from messages array
-                if prompt_response and "messages" in prompt_response and len(prompt_response["messages"]) > 0:
-                    prompt_text = prompt_response["messages"][0].get("prompt_text")
-            except Exception as e:
-                logger.warning(f"Failed to fetch best prompt: {e}")
-                prompt_text = None
+        # Extract results from the workflow
+        metrics_data = final_result.get("metrics", {})
+        best_prompt_id = metrics_data.get("best_prompt_id")
+        final_prompt_id = metrics_data.get("final_prompt_id")
 
         # Print final results
         logger.info("\n=== Final Results ===")
-        logger.info(f"Session ID: {final_result['session_id']}")
-        logger.info(f"Status: {final_result['status']}")
-        logger.info(f"Best Prompt ID: {final_result.get('prompt_id', 'N/A')}")
-        logger.info(f"Best Eval ID: {final_result.get('eval_id', 'N/A')}")
-        logger.info(f"Iteration: {final_result.get('iteration', 'N/A')}")
-        logger.info(f"Is Best: {final_result.get('is_best', 'N/A')}")
+        logger.info(f"Workflow ID: {workflow_id}")
+        logger.info(f"Status: {final_result.get('status')}")
+        logger.info(f"Best Prompt ID: {best_prompt_id or 'N/A'}")
+        logger.info(f"Final Prompt ID: {final_prompt_id or 'N/A'}")
+        logger.info(f"Reason: {metrics_data.get('reason', 'N/A')}")
 
-        if final_result.get("metrics"):
-            logger.info("\nMetrics:")
-            logger.info(json.dumps(final_result["metrics"], indent=2))
+        # Display iteration results
+        if metrics_data:
+            final_metrics = metrics_data.get("final_metrics", {})
+            if final_metrics:
+                logger.info("\nFinal Metrics:")
+                for metric_name, value in final_metrics.items():
+                    logger.info(f"  {metric_name}: {value}")
 
-        # Display the best prompt text
-        if prompt_text:
-            logger.info("\n=== Best Prompt ===")
-            logger.info(prompt_text)
+            iteration_results = metrics_data.get("iteration_results", [])
+            if iteration_results:
+                logger.info(f"\nCompleted {len(iteration_results)} iterations")
+                for result in iteration_results:
+                    iter_num = result.get("iteration", "?")
+                    iter_metrics = result.get("metrics", {})
+                    logger.info(f"  Iteration {iter_num}: {iter_metrics}")
+
+        # Step 8: Best Prompt Information
+        logger.info("\n=== Step 8: Best Prompt Information ===")
+        best_prompt_id = metrics_data.get('best_prompt_id')
+        final_prompt_id = metrics_data.get('final_prompt_id')
+
+        if best_prompt_id:
+            logger.info(f"Best Prompt ID: {best_prompt_id}")
+
+            if final_prompt_id and final_prompt_id != best_prompt_id:
+                logger.info(f"Final Prompt ID: {final_prompt_id}")
+
+            # Check if optimization occurred
+            if prompt_id == best_prompt_id:
+                logger.info("\n✓ The original prompt was already optimal for this dataset!")
+            else:
+                logger.info("\n✓ A new optimized prompt was generated through tuning!")
+                logger.info("  The tuning process tested variations and found improvements.")
+
+            logger.info("\n📝 Use this prompt ID in future workflows for best performance:")
+            logger.info(f"   client.run_workflow(..., prompt_id='{best_prompt_id}', ...)")
         else:
-            logger.info("\nBest Prompt: N/A")
+            logger.info("Best prompt ID not available in results")
 
         logger.info("\n✓ All steps completed successfully!")
 

@@ -47,8 +47,8 @@ def main():
     )
     parser.add_argument(
         "--base-url",
-        default="https://api.dimred.com",
-        help="API base URL (default: https://api.dimred.com)"
+        default="https://www.dimred.com",
+        help="API base URL (default: https://www.dimred.com)"
     )
     parser.add_argument(
         "--iterations",
@@ -214,8 +214,8 @@ def metric_func(output, expected):
             include_project_metrics=True
         )
 
-        # Get session ID for tracking
-        session_id = result.get("tuning_session_id")
+        # Get session ID for tracking (API returns 'id' not 'tuning_session_id')
+        session_id = result.get("id") or result.get("tuning_session_id")
 
         if not session_id:
             logger.warning("No tuning_session_id returned. Checking immediate results...")
@@ -232,14 +232,18 @@ def metric_func(output, expected):
 
         # 7. Wait for completion and track progress
         logger.info(f"\n=== Step 7: Monitoring Tuning Session ===")
-        logger.info(f"Session ID: {session_id}")
+        logger.info(f"Workflow ID: {session_id}")
 
-        # Poll for completion
-        final_result = client.wait_for_tuning_completion(
-            session_id=session_id,
-            poll_interval=15,
-            timeout=3600
-        )
+        # Poll for completion using the new workflow monitoring
+        try:
+            final_result = client.wait_for_workflow_completion(
+                workflow_id=session_id,
+                poll_interval=10,  # Check every 10 seconds for tuning
+                timeout=3600  # 1 hour timeout
+            )
+        except DimRedAPIError as e:
+            logger.error(f"Tuning failed: {e}")
+            return 1
 
         # 8. Fetch and display the best prompt
         prompt_id = final_result.get('prompt_id')

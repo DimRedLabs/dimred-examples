@@ -46,8 +46,8 @@ def main():
     )
     parser.add_argument(
         "--base-url",
-        default="https://api.dimred.com",
-        help="API base URL (default: https://api.dimred.com)"
+        default="https://www.dimred.com",
+        help="API base URL (default: https://www.dimred.com)"
     )
     parser.add_argument(
         "--verbose",
@@ -105,27 +105,22 @@ def main():
 
         # 4. Create prompt for financial crime detection
         logger.info("\n=== Step 4: Create Prompt ===")
-        messages = [
-            {
-                "prompt_text": (
-                    "You are an expert financial crime analyst. Your task is to analyze news article "
-                    "snippets and determine whether the person mentioned is a perpetrator of financial crime.\n\n"
-                    "A person is a PERPETRATOR if:\n"
-                    "- They are explicitly charged, indicted, arrested, or accused of financial crimes\n"
-                    "- There is clear evidence of illegal activity (e.g., court documents, bank records)\n"
-                    "- They are directly involved in illegal financial transactions\n\n"
-                    "A person is NOT a perpetrator if:\n"
-                    "- They are law enforcement, prosecutors, or investigators\n"
-                    "- They are witnesses, victims, or observers\n"
-                    "- There is only speculation or suspicion without charges\n"
-                    "- They are community leaders or officials responding to crimes\n\n"
-                    "Respond with JSON containing:\n"
-                    "- is_perpetrator: true or false\n"
-                    "- reasoning: brief explanation of your decision"
-                ),
-                "prompt_message_type": "system"
-            }
-        ]
+        prompt_text = (
+            "You are an expert financial crime analyst. Your task is to analyze news article "
+            "snippets and determine whether the person mentioned is a perpetrator of financial crime.\n\n"
+            "A person is a PERPETRATOR if:\n"
+            "- They are explicitly charged, indicted, arrested, or accused of financial crimes\n"
+            "- There is clear evidence of illegal activity (e.g., court documents, bank records)\n"
+            "- They are directly involved in illegal financial transactions\n\n"
+            "A person is NOT a perpetrator if:\n"
+            "- They are law enforcement, prosecutors, or investigators\n"
+            "- They are witnesses, victims, or observers\n"
+            "- There is only speculation or suspicion without charges\n"
+            "- They are community leaders or officials responding to crimes\n\n"
+            "Respond with JSON containing:\n"
+            "- is_perpetrator: true or false\n"
+            "- reasoning: brief explanation of your decision"
+        )
 
         # Create output schema for structured JSON response
         output_schema = {
@@ -145,44 +140,170 @@ def main():
 
         prompt_id = client.create_prompt(
             project_id=project_id,
-            messages=messages,
+            prompt_text=prompt_text,
+            prompt_message_type="system",
             name="Financial Crime Detection - Inference",
             output_schema=output_schema
         )
 
-        # 5. Run inference mode (no metric needed)
-        logger.info("\n=== Step 5: Run Inference Mode ===")
+        # 5. Create a dummy metric for inference (required by API)
+        logger.info("\n=== Step 5: Create Dummy Metric ===")
+        logger.info("Creating dummy metric for inference mode...")
+
+        try:
+            # Create a simple always-pass metric for inference
+            metric_code = '''
+def metric_func(output, expected):
+    """Dummy metric that always returns 1.0 for inference mode"""
+    return 1.0
+'''
+            metric_id = client.create_metric(
+                project_id=project_id,
+                code=metric_code,
+                metric_name="Inference Dummy Metric",
+                metric_description="Placeholder metric for inference mode (always returns 1.0)"
+            )
+            logger.info(f"✓ Dummy metric created: {metric_id}")
+        except DimRedAPIError as e:
+            logger.warning(f"Could not create dummy metric: {e}")
+            metric_id = None
+
+        # 6. Run inference mode and wait for completion
+        logger.info("\n=== Step 6: Run Inference Mode ===")
         logger.info("Running inference without metric evaluation...")
 
-        result = client.run_workflow(
+        # Start workflow with the metric (now using evaluate mode since we have a metric)
+        workflow_response = client.run_workflow(
             project_id=project_id,
             dataset_id=dataset_id,
             prompt_id=prompt_id,
+            metric_id=metric_id,  # Use the dummy metric
             model_name="gpt-4o-mini",
             provider="openai",
-            mode="inference"
+            mode="evaluate" if metric_id else "inference"  # Use evaluate mode when we have a metric
         )
 
-        # Display results
-        logger.info("\n=== Inference Results ===")
-        if result.get("status"):
-            logger.info(f"Status: {result.get('status')}")
+        workflow_id = workflow_response.get("id")
+        if workflow_id:
+            logger.info(f"Workflow started with ID: {workflow_id}")
+            logger.info(f"Initial status: {workflow_response.get('status')}")
 
-        if result.get("task_id"):
-            logger.info(f"Task ID: {result.get('task_id')}")
+            # Wait for completion
+            logger.info("\n=== Step 7: Monitor Workflow Progress ===")
+            try:
+                completed_workflow = client.wait_for_workflow_completion(
+                    workflow_id=workflow_id,
+                    poll_interval=3,  # Poll every 3 seconds for inference
+                    timeout=300  # 5 minute timeout
+                )
 
-        if result.get("eval_id"):
-            logger.info(f"Evaluation ID: {result.get('eval_id')}")
+                # Get detailed results
+                logger.info("\n=== Step 8: Display Inference Summary ===")
 
-        # If the response includes outputs, display them
-        if result.get("outputs"):
-            logger.info(f"\nGenerated {len(result.get('outputs'))} outputs")
-            for idx, output in enumerate(result.get("outputs")[:3], 1):  # Show first 3
-                logger.info(f"\nOutput {idx}:")
-                logger.info(json.dumps(output, indent=2))
+                # Note: The dataset export endpoint currently returns HTML instead of JSON,
+                # so we can't fetch the actual inference outputs yet.
+                # Display what we know from the workflow completion.
 
-        logger.info("\n✓ Inference mode completed successfully!")
-        logger.info("Note: No metrics were evaluated in inference mode")
+                logger.info("Inference workflow completed successfully!")
+                logger.info(f"  Workflow ID: {workflow_id}")
+                logger.info(f"  Dataset ID: {dataset_id}")
+                logger.info(f"  Prompt ID: {prompt_id}")
+
+                # Try to get metrics from completed workflow
+                if completed_workflow.get('metrics'):
+                    logger.info("\nWorkflow Metrics:")
+                    metrics = completed_workflow.get('metrics', {})
+                    for key, value in metrics.items():
+                        logger.info(f"  {key}: {value}")
+
+                # Try dataset export anyway in case it starts working
+                try:
+                    export_data = client.export_dataset(dataset_id)
+                    total_datapoints = export_data.get('total_datapoints', 0)
+
+                    if total_datapoints > 0:
+                        logger.info(f"\n✓ Retrieved {total_datapoints} datapoints with inference results")
+
+                    # Display the inference results
+                    datapoints = export_data.get("datapoints", [])
+
+                    if datapoints:
+                        logger.info(f"\n=== Inference Outputs ===")
+
+                        # Show first 5 results in detail
+                        for idx, dp in enumerate(datapoints[:5], 1):
+                            logger.info(f"\n--- Result {idx} ---")
+
+                            # Parse input data
+                            input_data = dp.get("input_data")
+                            if input_data:
+                                try:
+                                    input_obj = json.loads(input_data) if isinstance(input_data, str) else input_data
+                                    logger.info(f"Input: {json.dumps(input_obj, indent=2)}")
+                                except:
+                                    logger.info(f"Input: {input_data}")
+
+                            # Parse output data (the inference result)
+                            output_data = dp.get("output_data")
+                            if output_data:
+                                try:
+                                    output_obj = json.loads(output_data) if isinstance(output_data, str) else output_data
+                                    logger.info(f"LLM Output: {json.dumps(output_obj, indent=2)}")
+                                except:
+                                    logger.info(f"LLM Output: {output_data}")
+                            else:
+                                logger.info("LLM Output: (not yet available)")
+
+                            # Show expected output for comparison
+                            expected_output = dp.get("expected_output")
+                            if expected_output:
+                                try:
+                                    expected_obj = json.loads(expected_output) if isinstance(expected_output, str) else expected_output
+                                    logger.info(f"Expected: {json.dumps(expected_obj, indent=2)}")
+                                except:
+                                    logger.info(f"Expected: {expected_output}")
+
+                        if len(datapoints) > 5:
+                            logger.info(f"\n... and {len(datapoints) - 5} more results")
+
+                        # Count how many have output_data populated
+                        with_outputs = sum(1 for dp in datapoints if dp.get("output_data"))
+                        logger.info(f"\n✓ {with_outputs}/{len(datapoints)} datapoints have inference outputs")
+                    else:
+                        logger.info("\nNote: Dataset export API endpoint is not yet returning JSON data.")
+                        logger.info("The inference was completed but results cannot be fetched via the export endpoint yet.")
+
+                except Exception as e:
+                    logger.warning(f"Could not fetch dataset export: {e}")
+                    logger.info("Falling back to workflow results...")
+
+                    # Fallback to original method
+                    result_mode = "evaluate" if metric_id else "inference"
+                    results = client.get_workflow_results(workflow_id, result_mode)
+
+                    if results.get("summary"):
+                        logger.info("\nSummary:")
+                        logger.info(json.dumps(results["summary"], indent=2))
+
+                logger.info("\n✓ Inference mode completed successfully!")
+                logger.info("Note: No metrics were evaluated in inference mode")
+
+            except DimRedAPIError as e:
+                logger.error(f"Workflow monitoring failed: {e}")
+                # Try to cancel the workflow if it's still running
+                try:
+                    client.cancel_workflow(workflow_id)
+                    logger.info("Workflow cancelled")
+                except:
+                    pass
+                raise
+
+        else:
+            # Fallback to basic response display
+            logger.info("\n=== Inference Started ===")
+            logger.info(f"Status: {workflow_response.get('status')}")
+            logger.info("Use workflow monitoring methods to track progress")
+            logger.info("\n✓ Inference workflow submitted successfully!")
 
         return 0
 
