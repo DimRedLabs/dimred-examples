@@ -53,7 +53,7 @@ def main():
     parser.add_argument(
         "--iterations",
         type=int,
-        default=1,
+        default=2,
         help="Number of tuning iterations (default: 1)"
     )
     parser.add_argument(
