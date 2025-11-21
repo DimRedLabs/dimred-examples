@@ -53,8 +53,8 @@ def main():
     parser.add_argument(
         "--iterations",
         type=int,
-        default=3,
-        help="Number of tuning iterations (default: 3)"
+        default=1,
+        help="Number of tuning iterations (default: 1)"
     )
     parser.add_argument(
         "--verbose",

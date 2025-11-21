@@ -201,7 +201,7 @@ def metric_func(output, expected):
             model_name="gpt-4o-mini",
             provider="openai",
             mode="tune",
-            num_iterations=3
+            num_iterations=1
         )
 
         workflow_id = workflow_response.get("id") or workflow_response.get("tuning_session_id")
